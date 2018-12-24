@@ -1,0 +1,6 @@
+fwuart
+
+-e git+http://github.com/mballance/googletest-hdl.git#egg=googletest-hdl
+-e git+http://github.com/mballance/sv_bfms.git#egg=sv_bfms
+
+
