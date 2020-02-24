@@ -1,5 +1,5 @@
 
-git+http://github.com/mballance/googletest-hdl.git#egg=googletest-hdl
--e git+http://github.com/mballance/sv_bfms.git#egg=sv_bfms
+-e git+http://github.com/pybfms/rv_bfms.git#egg=rv_bfms
+-e git+http://github.com/pybfms/uart_bfms.git#egg=uart_bfms
 
 
