@@ -1,0 +1,12 @@
+package:
+    name: fwuart
+    version: 0.0.1
+    deps:
+
+    dev-deps:
+        - name: pybfms-rv
+          url: http://github.com/pybfms/pybfms-rv.git
+          type: python
+        - name: pybfms-uart
+          url: http://github.com/pybfms/pybfms-uart.git
+          type: python
