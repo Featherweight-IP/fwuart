@@ -1,6 +1,7 @@
 /****************************************************************************
  * fwuart_tx.sv
  ****************************************************************************/
+`include "rv_macros.svh"
 
 /**
  * Module: fwuart_tx
@@ -10,9 +11,7 @@
 module fwuart_tx (
 		input			clock, // data-interface clock
 		input			reset,
-		input [7:0]		data,
-		output			data_ready,
-		input			data_valid,
+		`RV_TARGET_PORT(t_, 8),
 		input			clock_x16,
 		output reg		tx
 		);
@@ -22,23 +21,24 @@ module fwuart_tx (
 	wire				tx_clk_count16 = &tx_clk_count;
 	reg[2:0]			bit_count;
 	
-	assign data_ready = (state == 0);
-
-	always @(posedge clock) begin
+	assign t_ready = (state == 0);
+	
+	always @(posedge clock or posedge reset) begin
 		if (reset) begin
 			state <= 0;
 			tx_clk_count <= 0;
 			tx <= 1;
+			bit_count <= {3{1'b0}};
 		end else begin
 			if (state == 0) begin
 				tx_clk_count <= 0;
-			end else begin
+			end else if (clock_x16) begin
 				tx_clk_count <= tx_clk_count + 1;
 			end
 			case (state) 
 				0: begin
-					if (data_valid) begin
-						data_r <= data;
+					if (t_valid) begin
+						data_r <= t_dat;
 						state <= 1;
 						tx_clk_count <= 0;
 						tx <= 0;
@@ -47,7 +47,7 @@ module fwuart_tx (
 			
 				// End of start bit
 				1: begin // Align with the baud clock
-					if (tx_clk_count16) begin
+					if (clock_x16 && tx_clk_count16) begin
 						state <= 2;
 						bit_count <= 0;
 					end
@@ -56,7 +56,7 @@ module fwuart_tx (
 				// Wait for an acknowledgement from the other domain
 				2: begin
 					tx <= data_r[0];
-					if (tx_clk_count16) begin
+					if (clock_x16 && tx_clk_count16) begin
 						data_r <= {1'b0, data_r[7:1]};
 						bit_count <= bit_count + 1;
 					
@@ -70,7 +70,7 @@ module fwuart_tx (
 			
 				// Stop bit
 				3: begin
-					if (tx_clk_count16) begin
+					if (clock_x16 && tx_clk_count16) begin
 						state <= 0;
 					end
 				end
